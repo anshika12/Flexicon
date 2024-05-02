@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Unit Conversion Grader</title>
+    <script>
+        async function fetchJSON(url) {
+            const response = await fetch(url);
+            return await response.json();
+        }
+
+   
+   async function convertAndGrade() {
+    try {
+        const conversionsData = await fetchJSON('conversions.json');
+        const inputUnit = document.getElementById('inputUnit').value.toLowerCase();
+        const targetUnit = document.getElementById('targetUnit').value.toLowerCase();
+        const numericalValue = parseFloat(document.getElementById('numericalValue').value);
+        const studentResponse = parseFloat(document.getElementById('studentResponse').value);
+
+        const conversionInfo = conversionsData.conversions[`${inputUnit}_to_${targetUnit}`];
+        
+        if (!conversionInfo) {
+            document.getElementById('output').innerText = 'Invalid units';
+            return;
+        }
+
+        if (!conversionInfo.units.includes(inputUnit) || !conversionInfo.units.includes(targetUnit)) {
+            document.getElementById('output').innerText = 'Invalid units for this conversion';
+            return;
+        }
+
+       const convertedResponse = applyConversion(conversionInfo.formula, numericalValue);
+
+        const roundedConvertedResponse = Math.round(convertedResponse * 10) / 10;
+	const roundedStudentResponse = Math.round(studentResponse * 10) / 10;
+        if (roundedConvertedResponse === roundedStudentResponse) {
+            document.getElementById('output').innerText = 'Correct';
+        } else {
+            document.getElementById('output').innerText = 'Incorrect';
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+function applyConversion(formula, value) {
+    return eval(formula.replace('value', value));
+}
+
+
+function applyConversion(formula, value) {
+    return eval(formula.replace('value', value));
+}
+
+
+    </script>
+</head>
+<body>
+    <h1>Unit Conversion Grader</h1>
+    <form>
+        <label for="numericalValue">Numerical Value:</label>
+        <input type="number" id="numericalValue" required>
+        <br>
+        <label for="inputUnit">Input Unit of Measure:</label>
+        <select id="inputUnit" required>
+            <!-- Options will be populated dynamically -->
+        </select>
+        <br>
+        <label for="targetUnit">Target Unit of Measure:</label>
+        <select id="targetUnit" required>
+            <!-- Options will be populated dynamically -->
+        </select>
+        <br>
+        <label for="studentResponse">Student Response:</label>
+        <input type="number" id="studentResponse" required>
+        <br>
+        <button type="button" onclick="convertAndGrade()">Grade</button>
+    </form>
+    <div id="output"></div>
+    <script>
+	
+        fetchJSON('input_units.json').then(inputUnits => {
+            const inputUnitSelect = document.getElementById('inputUnit');
+            inputUnits.units.forEach(unit => {
+                const option = document.createElement('option');
+                option.value = unit;
+                option.textContent = unit.charAt(0).toUpperCase() + unit.slice(1); 
+                inputUnitSelect.appendChild(option);
+            });
+        });
+
+        fetchJSON('target_units.json').then(targetUnits => {
+            const targetUnitSelect = document.getElementById('targetUnit');
+            targetUnits.units.forEach(unit => {
+                const option = document.createElement('option');
+                option.value = unit;
+                option.textContent = unit.charAt(0).toUpperCase() + unit.slice(1);
+                targetUnitSelect.appendChild(option);
+            });
+        });
+    </script>
+</body>
+</html>
